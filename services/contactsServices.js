@@ -19,7 +19,7 @@ async function getContactById(contactId) {
     const contactsList = JSON.parse(result);
     return contactsList.find((contact) => contact.id === contactId) || null;
   } catch (error) {
-    console.log(error);
+    return null;
   }
 }
 
@@ -50,15 +50,18 @@ async function updateContactById(contactId, updatedData) {
 }
 
 async function removeContact(contactId) {
-  const result = await readFile(contactsPath);
-  const contactsList = JSON.parse(result);
-  const index = contactsList.findIndex((contact) => contact.id === contactId);
-  if (index !== -1) {
-    const removedContact = contactsList.splice(index, 1)[0];
-    await writeFile(contactsPath, JSON.stringify(contactsList, null, 2));
-    return removedContact;
+  try {
+    const result = await readFile(contactsPath);
+    const contactsList = JSON.parse(result);
+    const index = contactsList.findIndex((contact) => contact.id === contactId);
+    if (index !== -1) {
+      const removedContact = contactsList.splice(index, 1)[0];
+      await writeFile(contactsPath, JSON.stringify(contactsList, null, 2));
+      return removedContact;
+    }
+  } catch (error) {
+    return null;
   }
-  return null;
 }
 
 async function addContact(name, email, phone) {
@@ -66,13 +69,26 @@ async function addContact(name, email, phone) {
     const result = await readFile(contactsPath);
     const contactList = JSON.parse(result);
 
+    const existingContact = contactList.find(
+      (contact) =>
+        contact.email === email ||
+        contact.name === name ||
+        contact.phone === phone
+    );
+
+    if (existingContact) {
+      throw new Error(
+        "Contact with this email, name, or phone number already exists"
+      );
+    }
+
     const newContact = { id: nanoid(5), name, email, phone };
     const updateContactList = [...contactList, newContact];
 
     await writeFile(contactsPath, JSON.stringify(updateContactList, null, 2));
     return newContact;
   } catch (error) {
-    return null;
+    throw new Error(`Error adding contact: ${error.message}`);
   }
 }
 
