@@ -10,9 +10,7 @@ import {
 
 export const getAllContacts = catchAsync(async (_req, res) => {
   const contacts = await listContacts();
-  res.status(200).json({
-    contacts,
-  });
+  res.status(200).json(contacts);
 });
 
 export const getOneContact = catchAsync(async (req, res) => {
@@ -23,9 +21,7 @@ export const getOneContact = catchAsync(async (req, res) => {
       throw HttpError(404, "Not Found");
     }
 
-    res.status(200).json({
-      foundedContact,
-    });
+    res.status(200).json(foundedContact);
 });
 
 export const deleteContact = catchAsync(async (req, res) => {
@@ -36,22 +32,17 @@ export const deleteContact = catchAsync(async (req, res) => {
       throw HttpError(404, "Not Found");
     }
 
-    res.status(200).json({
-      removedContact,
-    });
+    res.status(200).json(removedContact);
 });
 
 export const createContact = catchAsync(async (req, res) => {
     const { name, email, phone } = req.body;
     const newContact = await addContact(name, email, phone);
-
     if (!newContact) {
       throw HttpError(400, "Bad request");
     }
 
-    res.status(201).json({
-      newContact,
-    });
+    res.status(201).json(newContact);
 });
 
 export const updateContact = catchAsync(async (req, res) => {
@@ -64,12 +55,11 @@ export const updateContact = catchAsync(async (req, res) => {
     }
 
     const updatedContact = await updateContactById(id, req.body);
+    console.log(updatedContact);
 
     if (!updatedContact) {
       throw HttpError(404, "Not found");
     }
 
-    res.status(200).json({
-      updatedContact,
-    });
+    res.status(200).json(updatedContact);
 });
