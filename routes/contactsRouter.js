@@ -9,7 +9,6 @@ import {
   updateContact,
   updateFavorite,
 } from "../controllers/contactsControllers.js";
-import { checkDuplicateEmail } from "../middlewars/checkDuplicateEmail.js";
 import { checkUserId } from "../middlewars/checkUserId.js";
 
 const contactsRouter = express.Router();
@@ -18,7 +17,7 @@ contactsRouter.get("/", getAllContacts);
 
 contactsRouter.get("/:id", checkUserId, getOneContact);
 
-contactsRouter.post("/", checkDuplicateEmail, validateBody(createContactSchema), createContact);
+contactsRouter.post("/", validateBody(createContactSchema), createContact);
 
 contactsRouter.put("/:id", checkUserId, validateBody(updateContactSchema), updateContact);
 

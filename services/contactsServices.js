@@ -14,7 +14,7 @@ async function listContacts() {
 
 async function getContactById(contactId) {
   try {
-    const result = await Contact.find({ _id: contactId });
+    const result = await Contact.findOne({ _id: contactId });
     return result;
   } catch (error) {
     return null;
@@ -28,7 +28,7 @@ async function addContact(name, email, phone) {
       email,
       phone,
     });
-    return newContact;
+    return newContact.toObject({ versionKey: false });
   } catch (error) {
     throw new Error(`Error adding contact: ${error.message}`);
   }
