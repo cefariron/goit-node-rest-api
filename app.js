@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from 'mongoose';
 import contactsRouter from "./routes/contactsRouter.js";
+import userRouter from "./routes/authRouter.js";
 
 dotenv.config(); 
 
@@ -23,6 +24,7 @@ app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/users", userRouter);
 app.use("/api/contacts", contactsRouter);
 
 app.use((_, res) => {
@@ -34,6 +36,8 @@ app.use((err, req, res, next) => {
   res.status(status).json({ message });
 });
 
-app.listen(3000, () => {
+const port = process.env.PORT;
+
+app.listen(port, () => {
   console.log("Server is running. Use our API on port: 3000");
 });
