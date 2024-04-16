@@ -1,5 +1,6 @@
 import HttpError from "../helpers/HttpError.js";
 import { catchAsync } from "../helpers/catchAsync.js";
+import { getCurrentToken } from "../helpers/getCurrentToken.js";
 import { User } from "../models/userModel.js";
 import { loginUser, signupUser } from "../services/userServices.js";
 
@@ -38,9 +39,7 @@ export const logout = catchAsync(async (req, res) => {
 
   if (!user) throw HttpError(401, "Not authorized");
 
-  const token =
-    req.headers.authorization?.startsWith("Bearer ") &&
-    req.headers.authorization.split(" ")[1];
+  const token = getCurrentToken(req);
 
   if(user.token !== token) throw HttpError(401, "Not authorized");
 

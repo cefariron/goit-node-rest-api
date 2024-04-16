@@ -3,30 +3,31 @@ import { Contact } from "../models/contactModel.js";
 
 const contactsPath = path.join("db", "contacts.json");
 
-async function listContacts() {
+async function listContacts(ownerId) {
   try {
-    const result = await Contact.find();
+    const result = await Contact.find({ owner: ownerId });
     return result;
   } catch (error) {
     return [];
   }
 }
 
-async function getContactById(contactId) {
+async function getContactById(contactId, ownerId) {
   try {
-    const result = await Contact.findOne({ _id: contactId });
+    const result = await Contact.findOne({ _id: contactId, owner: ownerId });
     return result;
   } catch (error) {
     return null;
   }
 }
 
-async function addContact(name, email, phone) {
+async function addContact(name, email, phone, owner) {
   try {
     const newContact = await Contact.create({
       name,
       email,
       phone,
+      owner,
     });
     return newContact.toObject({ versionKey: false });
   } catch (error) {
@@ -34,9 +35,9 @@ async function addContact(name, email, phone) {
   }
 }
 
-async function updateContactById(contactId, updatedData) {
+async function updateContactById(contactId, updatedData, ownerId) {
   try {
-    const contact = await Contact.findByIdAndUpdate(contactId, updatedData, {
+    const contact = await Contact.findOneAndUpdate({ _id: contactId, owner: ownerId }, updatedData, {
       new: true,
     });
 
@@ -47,23 +48,23 @@ async function updateContactById(contactId, updatedData) {
   }
 }
 
-async function removeContact(contactId) {
+async function updateFavoriteStatus(id, favorite, ownerId) {
   try {
-    const result = await Contact.findByIdAndDelete(contactId);
-    return result;
+    const updatedContact = await Contact.findOneAndUpdate(
+      { _id: id, owner: ownerId },
+      { favorite },
+      { new: true }
+    );
+    return updatedContact;
   } catch (error) {
     return null;
   }
 }
 
-async function updateFavoriteStatus(id, favorite) {
+async function removeContact(contactId, ownerId) {
   try {
-    const updatedContact = await Contact.findByIdAndUpdate(
-      id,
-      { favorite },
-      { new: true }
-    );
-    return updatedContact;
+    const result = await Contact.findOneAndDelete({ _id: contactId, owner: ownerId });
+    return result;
   } catch (error) {
     return null;
   }
