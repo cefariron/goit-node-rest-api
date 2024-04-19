@@ -2,7 +2,8 @@ import HttpError from "../helpers/HttpError.js";
 import { catchAsync } from "../helpers/catchAsync.js";
 import { getCurrentToken } from "../helpers/getCurrentToken.js";
 import { User } from "../models/userModel.js";
-import { loginUser, signupUser } from "../services/userServices.js";
+import { checkToken } from "../services/jwtService.js";
+import { loginUser, signupUser, updateAvatar } from "../services/userServices.js";
 
 export const signUp = catchAsync(async (req, res) => {
   const response = await signupUser(req.body);
@@ -48,3 +49,15 @@ export const logout = catchAsync(async (req, res) => {
 
   res.status(204).end();
 });
+
+export const setAvatar = catchAsync(async (req, res) => {
+  const token = getCurrentToken(req);
+  const ownerId = checkToken(token);
+  const filePath = `/tmp/${req.file.filename}`;
+
+  const updatedUser = await updateAvatar(filePath, ownerId);
+
+  res.status(200).json({
+    avatarURL: updatedUser.avatarURL,
+  });
+})
