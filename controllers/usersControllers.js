@@ -3,7 +3,13 @@ import { catchAsync } from "../helpers/catchAsync.js";
 import { getCurrentToken } from "../helpers/getCurrentToken.js";
 import { User } from "../models/userModel.js";
 import { checkToken } from "../services/jwtService.js";
-import { loginUser, signupUser, updateAvatar } from "../services/userServices.js";
+import {
+  loginUser,
+  signupUser,
+  updateAvatar,
+} from "../services/userServices.js";
+import Jimp from "jimp";
+import path from "path";
 
 export const signUp = catchAsync(async (req, res) => {
   const response = await signupUser(req.body);
@@ -42,7 +48,7 @@ export const logout = catchAsync(async (req, res) => {
 
   const token = getCurrentToken(req);
 
-  if(user.token !== token) throw HttpError(401, "Not authorized");
+  if (user.token !== token) throw HttpError(401, "Not authorized");
 
   user.token = null;
   await user.save();
@@ -53,11 +59,19 @@ export const logout = catchAsync(async (req, res) => {
 export const setAvatar = catchAsync(async (req, res) => {
   const token = getCurrentToken(req);
   const ownerId = checkToken(token);
-  const filePath = `/tmp/${req.file.filename}`;
+  const filePath = `./tmp/${req.file.filename}`;
+  const newFilePath = `./public/avatars/${req.file.filename}`;
 
-  const updatedUser = await updateAvatar(filePath, ownerId);
+  Jimp.read(filePath, (err, avatar) => {
+    if (err) throw HttpError(401, "Not authorized");
+    avatar
+      .resize(250, 250)
+      .write(newFilePath);
+  });
+
+  const updatedUser = await updateAvatar(newFilePath, ownerId);
 
   res.status(200).json({
     avatarURL: updatedUser.avatarURL,
   });
-})
+});

@@ -1,6 +1,7 @@
 import HttpError from "../helpers/HttpError.js";
 import { emailHashCreate, passwordHashCreate } from "../helpers/createHash.js";
 import { User } from "../models/userModel.js";
+import { signToken } from "./jwtService.js";
 
 export const signupUser = async ({ email, password, avatarURL }) => {
   const emailHash = await emailHashCreate(email);
