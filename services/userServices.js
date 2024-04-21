@@ -62,10 +62,12 @@ export const updateAvatar = async (ownerId, user, file) => {
     );
   }
 
+  const databasePath = user.avatarURL.replace(/\\/g, "/");
+
   try {
     const updatedUser = await User.findByIdAndUpdate(
       ownerId,
-      { avatarURL: user.avatarURL },
+      { avatarURL: databasePath },
       { new: true }
     );
     return updatedUser;

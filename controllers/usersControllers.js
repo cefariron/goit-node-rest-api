@@ -62,9 +62,7 @@ export const setAvatar = catchAsync(async (req, res) => {
 
   const updatedUser = await updateAvatar(ownerId, req.user, req.file);
 
-  const databasePath = updatedUser.avatarURL.replace(/\\/g, "/");
-
   res.status(200).json({
-    avatarURL: databasePath,
+    avatarURL: updatedUser.avatarURL,
   });
 });
