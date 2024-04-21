@@ -48,6 +48,8 @@ export const getUserById = async (userId) => {
 };
 
 export const updateAvatar = async (ownerId, user, file) => {
+  if (!file) throw HttpError(400, "Bad request");
+
   if (file) {
     user.avatarURL = await ImageServise.saveImage(
       file,
@@ -56,9 +58,8 @@ export const updateAvatar = async (ownerId, user, file) => {
         width: 250,
         height: 250,
       },
-      "avatars",
-      "users",
-      ownerId
+      ownerId,
+      "avatars"
     );
   }
 

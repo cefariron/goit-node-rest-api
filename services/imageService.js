@@ -23,7 +23,7 @@ export class ImageServise {
     }).single(fieldName);
   }
 
-  static async saveImage(file, options, ...pathSegments) {
+  static async saveImage(file, options, ownerId, ...pathSegments) {
     if (
       file.size >
       (options?.maxFileSize
@@ -33,7 +33,7 @@ export class ImageServise {
       throw HttpError(400, "File is too large, please use a file up to 2 MB!");
     }
 
-    const fileName = `${nanoid(8)}.jpeg`;
+    const fileName = `${ownerId}-${nanoid(8)}.jpeg`;
     const fullFilePath = path.join(process.cwd(), "public", ...pathSegments);
 
     await fse.ensureDir(fullFilePath);
