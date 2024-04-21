@@ -15,7 +15,6 @@ import {
 
 export const userRouter = express.Router();
 
-
 userRouter.post("/register", checkSignupData, signUp);
 userRouter.post("/login", checkLoginData, login);
 
@@ -23,6 +22,6 @@ userRouter.use(protect);
 
 userRouter.get("/current", getCurrentUser);
 userRouter.post("/logout", logout);
-userRouter.patch("/avatars", uploadAvatar, setAvatar)
+userRouter.patch("/avatars", uploadAvatar, setAvatar);
 
 export default userRouter;

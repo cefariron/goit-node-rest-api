@@ -59,19 +59,12 @@ export const logout = catchAsync(async (req, res) => {
 export const setAvatar = catchAsync(async (req, res) => {
   const token = getCurrentToken(req);
   const ownerId = checkToken(token);
-  const filePath = `./tmp/${req.file.filename}`;
-  const newFilePath = `./public/avatars/${req.file.filename}`;
 
-  Jimp.read(filePath, (err, avatar) => {
-    if (err) throw HttpError(401, "Not authorized");
-    avatar
-      .resize(250, 250)
-      .write(newFilePath);
-  });
+  const updatedUser = await updateAvatar(ownerId, req.user, req.file);
 
-  const updatedUser = await updateAvatar(newFilePath, ownerId);
+  const databasePath = updatedUser.avatarURL.replace(/\\/g, "/");
 
   res.status(200).json({
-    avatarURL: updatedUser.avatarURL,
+    avatarURL: databasePath,
   });
 });

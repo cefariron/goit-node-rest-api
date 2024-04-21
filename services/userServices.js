@@ -1,6 +1,7 @@
 import HttpError from "../helpers/HttpError.js";
 import { emailHashCreate, passwordHashCreate } from "../helpers/createHash.js";
 import { User } from "../models/userModel.js";
+import { ImageServise } from "./imageService.js";
 import { signToken } from "./jwtService.js";
 
 export const signupUser = async ({ email, password, avatarURL }) => {
@@ -46,11 +47,25 @@ export const getUserById = async (userId) => {
   }
 };
 
-export const updateAvatar = async (filePath, ownerId) => {
+export const updateAvatar = async (ownerId, user, file) => {
+  if (file) {
+    user.avatarURL = await ImageServise.saveImage(
+      file,
+      {
+        maxFileSize: 2,
+        width: 250,
+        height: 250,
+      },
+      "avatars",
+      "users",
+      ownerId
+    );
+  }
+
   try {
     const updatedUser = await User.findByIdAndUpdate(
       ownerId,
-      { avatarURL: filePath },
+      { avatarURL: user.avatarURL },
       { new: true }
     );
     return updatedUser;
