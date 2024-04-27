@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import HttpError from "../helpers/HttpError.js";
 import { emailHashCreate, passwordHashCreate } from "../helpers/createHash.js";
 import { User } from "../models/userModel.js";
@@ -8,10 +9,12 @@ export const signupUser = async ({ email, password, avatarURL }) => {
   const emailHash = await emailHashCreate(email);
   const passwordHash = await passwordHashCreate(password);
   avatarURL = `https://gravatar.com/avatar/${emailHash}.jpg?d=robohash`;
+  const verificationToken = nanoid(32);
   const userData = {
     email,
     password: passwordHash,
     avatarURL,
+    verificationToken,
   };
   const newUser = await User.create(userData);
 

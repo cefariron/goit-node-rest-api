@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import HttpError from "../helpers/HttpError.js";
 import { catchAsync } from "../helpers/catchAsync.js";
 import { getCurrentToken } from "../helpers/getCurrentToken.js";
@@ -8,10 +9,9 @@ import {
   signupUser,
   updateAvatar,
 } from "../services/userServices.js";
-import Jimp from "jimp";
-import path from "path";
 
 export const signUp = catchAsync(async (req, res) => {
+
   const response = await signupUser(req.body);
 
   res.status(201).json({
@@ -19,6 +19,7 @@ export const signUp = catchAsync(async (req, res) => {
       email: response.newUser.email,
       subscription: "starter",
     },
+    msg: 'Verification link sent to your e-mail, please follow the link to verife account.'
   });
 });
 
