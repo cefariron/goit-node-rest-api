@@ -20,6 +20,7 @@ const userSchema = new Schema({
     type: String,
     default: null,
   },
+  avatarURL: String,
 });
 
 userSchema.methods.checkUserPassword = (candidate, passwordHash) => bcrypt.compare(candidate, passwordHash);
