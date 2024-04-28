@@ -6,6 +6,7 @@ import {
   protect,
 } from "../middlewars/authMiddlewars.js";
 import {
+  confirmVerifyToken,
   getCurrentUser,
   login,
   logout,
@@ -17,6 +18,8 @@ export const userRouter = express.Router();
 
 userRouter.post("/register", checkSignupData, signUp);
 userRouter.post("/login", checkLoginData, login);
+userRouter.get("/verify/:verificationToken", confirmVerifyToken);
+// userRouter.get("/verify", confirmVerifyToken);
 
 userRouter.use(protect);
 

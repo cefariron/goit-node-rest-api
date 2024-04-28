@@ -20,11 +20,12 @@ export class EmailService {
       },
     };
     return nodemailer.createTransport(transportConfig);
-  } 
+  }
 
-  async _send(template, subject) {
+  async _send(template, subject, verifyUrl) {
     const html = pug.renderFile(
-      path.join(process.cwd(), "views", `${template}.pug`)
+      path.join(process.cwd(), "views", `${template}.pug`),
+      { verifyUrl }
     );
 
     const emailConfig = {
@@ -38,7 +39,7 @@ export class EmailService {
     await this._initTransport().sendMail(emailConfig);
   }
 
-  async sendVerifyLink() {
-    await this._send("verifyEmail", "Confirm your email");
+  async sendVerifyLink(verifyUrl) {
+    await this._send("verifyEmail", "Confirm your email", verifyUrl);
   }
 }

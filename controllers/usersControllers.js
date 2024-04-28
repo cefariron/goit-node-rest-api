@@ -12,15 +12,16 @@ import {
 import { EmailService } from "../services/emailService.js";
 
 export const signUp = catchAsync(async (req, res) => {
-
   const response = await signupUser(req.body);
 
   try {
-    const verifyUrl = `${req.protocol}://${req.get('host')}/users/verify/${response.newUser.verificationToken}`;
+    const verifyUrl = `${req.protocol}://${req.get("host")}/api/users/verify/${
+      response.newUser.verificationToken
+    }`;
 
-    await new EmailService(req.body, verifyUrl).sendVerifyLink()
+    await new EmailService(req.body, verifyUrl).sendVerifyLink(verifyUrl);
   } catch (error) {
-    console.log(error);
+    throw HttpError(500, "Inernal server error");
   }
 
   res.status(201).json({
@@ -28,7 +29,7 @@ export const signUp = catchAsync(async (req, res) => {
       email: response.newUser.email,
       subscription: "starter",
     },
-    msg: 'Verification link sent to your e-mail, please follow the link to verife account.'
+    msg: "Verification link sent to your e-mail, please follow the link to verife account.",
   });
 });
 
@@ -74,5 +75,21 @@ export const setAvatar = catchAsync(async (req, res) => {
 
   res.status(200).json({
     avatarURL: updatedUser.avatarURL,
+  });
+});
+
+export const confirmVerifyToken = catchAsync(async (req, res) => {
+  const user = await User.findOneAndUpdate(
+    { verificationToken: req.params.verificationToken },
+    { verificationToken: null, verify: true },
+    { new: true }
+  );
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  res.status(200).json({
+    message: "Verification successful",
   });
 });
