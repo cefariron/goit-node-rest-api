@@ -9,10 +9,19 @@ import {
   signupUser,
   updateAvatar,
 } from "../services/userServices.js";
+import { EmailService } from "../services/emailService.js";
 
 export const signUp = catchAsync(async (req, res) => {
 
   const response = await signupUser(req.body);
+
+  try {
+    const verifyUrl = `${req.protocol}://${req.get('host')}/users/verify/${response.newUser.verificationToken}`;
+
+    await new EmailService(req.body, verifyUrl).sendVerifyLink()
+  } catch (error) {
+    console.log(error);
+  }
 
   res.status(201).json({
     user: {

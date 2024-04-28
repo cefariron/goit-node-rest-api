@@ -25,6 +25,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+app.set('view engine', 'pug');
+app.set('views', 'views');
+
 app.use("/api/users", userRouter);
 app.use("/api/contacts", contactsRouter);
 
