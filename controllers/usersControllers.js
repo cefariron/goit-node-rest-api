@@ -93,3 +93,29 @@ export const confirmVerifyToken = catchAsync(async (req, res) => {
     message: "Verification successful",
   });
 });
+
+export const resendVerifyToken = catchAsync(async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+
+  const newVerificationToken = nanoid(32);
+  user.verificationToken = newVerificationToken;
+  user.save()
+  
+  try {
+    const verifyUrl = `${req.protocol}://${req.get("host")}/api/users/verify/${
+      newVerificationToken
+    }`;
+
+    await new EmailService(req.body, verifyUrl).sendVerifyLink(verifyUrl);
+  } catch (error) {
+    throw HttpError(500, "Inernal server error");
+  }
+
+  res.status(200).json({
+    message: "Verification email sent",
+  });
+});

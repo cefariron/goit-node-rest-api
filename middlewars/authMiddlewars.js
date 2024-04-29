@@ -2,7 +2,7 @@ import HttpError from "../helpers/HttpError.js";
 import { catchAsync } from "../helpers/catchAsync.js";
 import { getCurrentToken } from "../helpers/getCurrentToken.js";
 import { User } from "../models/userModel.js";
-import { authUserSchema } from "../schemas/userSchemas.js";
+import { authUserEmailSchema, authUserSchema } from "../schemas/userSchemas.js";
 import { checkToken } from "../services/jwtService.js";
 import { getUserById } from "../services/userServices.js";
 import { checkUserDuplicateEmail } from "./checkUserDuplicateEmail.js";
@@ -53,6 +53,18 @@ export const protect = catchAsync(async (req, res, next) => {
   if (!currentUser) throw HttpError(401, "Not authorized");
 
   req.user = currentUser;
+
+  next();
+});
+
+export const checkEmailForResend = catchAsync(async (req, res, next) => {
+  const isValid = await authUserEmailSchema.validateAsync(req.body);
+
+  if (!isValid) throw HttpError(400, "Bad request, error validation!");
+
+  const userExists = await User.findOne({ email: req.body.email });
+
+  if (!userExists) throw HttpError(404, "User not found, please go to registration process");
 
   next();
 });

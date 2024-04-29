@@ -24,6 +24,8 @@ export const signupUser = async ({ email, password, avatarURL }) => {
 export const loginUser = async ({ email, password }) => {
   const user = await User.findOne({ email }).select("+password");
 
+  if (!user.verify) throw HttpError(403, "Confirm your account by following the link in the email, then try again.");
+
   if (!user) throw HttpError(401, "Unauthorized..");
 
   const passwordIsValid = await user.checkUserPassword(password, user.password);

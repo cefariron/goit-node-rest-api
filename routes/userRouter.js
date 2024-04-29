@@ -1,6 +1,7 @@
 import express from "express";
 import { uploadAvatar } from "../middlewars/uploadAvatar.js";
 import {
+  checkEmailForResend,
   checkLoginData,
   checkSignupData,
   protect,
@@ -10,6 +11,7 @@ import {
   getCurrentUser,
   login,
   logout,
+  resendVerifyToken,
   setAvatar,
   signUp,
 } from "../controllers/usersControllers.js";
@@ -19,7 +21,7 @@ export const userRouter = express.Router();
 userRouter.post("/register", checkSignupData, signUp);
 userRouter.post("/login", checkLoginData, login);
 userRouter.get("/verify/:verificationToken", confirmVerifyToken);
-// userRouter.get("/verify", confirmVerifyToken);
+userRouter.post("/verify", checkEmailForResend, resendVerifyToken);
 
 userRouter.use(protect);
 
