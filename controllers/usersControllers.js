@@ -29,7 +29,6 @@ export const signUp = catchAsync(async (req, res) => {
       email: response.newUser.email,
       subscription: "starter",
     },
-    msg: "Verification link sent to your e-mail, please follow the link to verife account.",
   });
 });
 
@@ -103,12 +102,12 @@ export const resendVerifyToken = catchAsync(async (req, res) => {
 
   const newVerificationToken = nanoid(32);
   user.verificationToken = newVerificationToken;
-  user.save()
-  
+  user.save();
+
   try {
-    const verifyUrl = `${req.protocol}://${req.get("host")}/api/users/verify/${
-      newVerificationToken
-    }`;
+    const verifyUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/api/users/verify/${newVerificationToken}`;
 
     await new EmailService(req.body, verifyUrl).sendVerifyLink(verifyUrl);
   } catch (error) {
