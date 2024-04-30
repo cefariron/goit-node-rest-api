@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
 const userSchema = new Schema({
   password: {
@@ -21,8 +21,16 @@ const userSchema = new Schema({
     default: null,
   },
   avatarURL: String,
+  verify: {
+    type: Boolean,
+    default: false,
+  },
+  verificationToken: {
+    type: String,
+  },
 });
 
-userSchema.methods.checkUserPassword = (candidate, passwordHash) => bcrypt.compare(candidate, passwordHash);
+userSchema.methods.checkUserPassword = (candidate, passwordHash) =>
+  bcrypt.compare(candidate, passwordHash);
 
 export const User = model("User", userSchema);

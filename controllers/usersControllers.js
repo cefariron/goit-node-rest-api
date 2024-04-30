@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import HttpError from "../helpers/HttpError.js";
 import { catchAsync } from "../helpers/catchAsync.js";
 import { getCurrentToken } from "../helpers/getCurrentToken.js";
@@ -8,11 +9,20 @@ import {
   signupUser,
   updateAvatar,
 } from "../services/userServices.js";
-import Jimp from "jimp";
-import path from "path";
+import { EmailService } from "../services/emailService.js";
 
 export const signUp = catchAsync(async (req, res) => {
   const response = await signupUser(req.body);
+
+  try {
+    const verifyUrl = `${req.protocol}://${req.get("host")}/api/users/verify/${
+      response.newUser.verificationToken
+    }`;
+
+    await new EmailService(req.body, verifyUrl).sendVerifyLink(verifyUrl);
+  } catch (error) {
+    throw HttpError(500, "Inernal server error");
+  }
 
   res.status(201).json({
     user: {
@@ -64,5 +74,47 @@ export const setAvatar = catchAsync(async (req, res) => {
 
   res.status(200).json({
     avatarURL: updatedUser.avatarURL,
+  });
+});
+
+export const confirmVerifyToken = catchAsync(async (req, res) => {
+  const user = await User.findOneAndUpdate(
+    { verificationToken: req.params.verificationToken },
+    { verificationToken: null, verify: true },
+    { new: true }
+  );
+
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+
+  res.status(200).json({
+    message: "Verification successful",
+  });
+});
+
+export const resendVerifyToken = catchAsync(async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+
+  const newVerificationToken = nanoid(32);
+  user.verificationToken = newVerificationToken;
+  user.save();
+
+  try {
+    const verifyUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/api/users/verify/${newVerificationToken}`;
+
+    await new EmailService(req.body, verifyUrl).sendVerifyLink(verifyUrl);
+  } catch (error) {
+    throw HttpError(500, "Inernal server error");
+  }
+
+  res.status(200).json({
+    message: "Verification email sent",
   });
 });

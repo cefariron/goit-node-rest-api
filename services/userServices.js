@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import HttpError from "../helpers/HttpError.js";
 import { emailHashCreate, passwordHashCreate } from "../helpers/createHash.js";
 import { User } from "../models/userModel.js";
@@ -8,10 +9,12 @@ export const signupUser = async ({ email, password, avatarURL }) => {
   const emailHash = await emailHashCreate(email);
   const passwordHash = await passwordHashCreate(password);
   avatarURL = `https://gravatar.com/avatar/${emailHash}.jpg?d=robohash`;
+  const verificationToken = nanoid(32);
   const userData = {
     email,
     password: passwordHash,
     avatarURL,
+    verificationToken,
   };
   const newUser = await User.create(userData);
 
@@ -20,6 +23,8 @@ export const signupUser = async ({ email, password, avatarURL }) => {
 
 export const loginUser = async ({ email, password }) => {
   const user = await User.findOne({ email }).select("+password");
+
+  if (!user.verify) throw HttpError(403, "Confirm your account by following the link in the email, then try again.");
 
   if (!user) throw HttpError(401, "Unauthorized..");
 
